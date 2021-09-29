@@ -12,6 +12,7 @@ CONFIG = {}
 #change before using it it raspi
 STUDENTS_JSON_PATH = "students.json"
 CONFIG_JSON_PATH = "config.json"
+SECRET_CONFIG = "secret.json"
 
 DEMANAR_AJUDA = 888148895002132540
 TEACHER_LOUNGE_ID = 888487793515434034
@@ -197,4 +198,5 @@ async def on_message(message):
   #actualitem DB
   writeJSON(STUDENTS_JSON_PATH, DADES_ESTUDIANTS)
 
-client.run('ODg5NTE0ODc4Nzk5MzQ3NzMy.YUiXSQ.CUuLE0_rq7u5iHsF3-LjC18CJFY');
+SECRET = readJSON(SECRET_CONFIG)
+client.run(SECRET["STUDYBOT_TOKEN"])
