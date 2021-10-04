@@ -20,6 +20,9 @@ TEACHER_LOUNGE_ID = 888487793515434034
 DELETE_MESAGES = "!delete"
 SET_CD = "!setcd"
 TOGGLE_CD = "!togglecd"
+GIVE_XP = "!givexp"
+SIMPLE_GIVE_XP = 2
+COMPLEX_GIVE_XP = 3
 HELP_CD = timedelta
 TOGGLE_HELP_CD = bool
 ADMIN = "Admin"
@@ -33,7 +36,6 @@ AJUDA_CAST = ['ajuda castella', 'ajuda castellà', 'ajuda caste', 'ayuda castell
 AJUDA_ANG = ['ajuda angles', 'ajuda anglès', 'ajuda ang', 'ajuda eng', 'ayuda ingles', 'ayuda inglés', 'ayuda ing', 'ayuda eng', 'help english', 'help eng']
 AJUDA_HIST = ['ajuda historia', 'ajuda hist', 'ajuda història', 'ayuda historia', 'ayuda hist']
 AJUDA_SOCIALS = ['ajuda socials', 'ajuda socis', 'ayuda sociales', 'ayuda socis']
-AJUDA_MATERIA = [AJUDA_MATES, AJUDA_NATUS, AJUDA_FISICA, AJUDA_QUIMICA, AJUDA_CAT, AJUDA_CAST, AJUDA_ANG, AJUDA_HIST, AJUDA_SOCIALS]
 
 PROFE_MATES = "Professor/a Mates"
 PROFE_NATUS = "Professor/a Naturals"
@@ -126,7 +128,7 @@ async def on_message(message):
 
   #save data from user
   if str(message.author.id) not in DADES_ESTUDIANTS :
-    DADES_ESTUDIANTS[str(message.author.id)] = { "name" : message.author.name,"dateLastMessage" : str(message.created_at), "nick":str(message.author.nick), "dateLastHelpMessage":str(message.created_at), "workXp":"0", "lvl":"0" }
+    DADES_ESTUDIANTS[str(message.author.id)] = { "name" : message.author.name,"dateLastMessage" : str(message.created_at), "nick":str(message.author.nick), "dateLastHelpMessage":str(message.created_at), "workXp":0, "lvl":0 }
   else:
     DADES_ESTUDIANTS[str(message.author.id)]["dateLastMessage"] = str(message.created_at)
     DADES_ESTUDIANTS[str(message.author.id)]["name"] = str(message.author.name)
@@ -135,27 +137,50 @@ async def on_message(message):
 
 
   
-  #si un admin utilitza !delete <seconds>
-  if message.content.lower().startswith(DELETE_MESAGES) and message.author.roles[-1] == message.channel.guild.roles[-1]:
-    #Takes the number from the message plus the actual message, that will be also deleted
-    messagesToDelete = int(message.content.lower().split()[-1]) + 1
-    await message.channel.purge(limit = messagesToDelete)    
+  #si un admin utilitza:
   
-  #si un admin utilitza !setCD X
-  elif message.content.lower().startswith(SET_CD) and message.author.roles[-1] == message.channel.guild.roles[-1]:
-    cdToSet = message.content.lower().split()[-1]
-    HELP_CD = timedelta(minutes = int(cdToSet))
-    CONFIG["HELP_CD"] = cdToSet
-    writeJSON(CONFIG_JSON_PATH, CONFIG)
+  if message.author.roles[-1] == message.channel.guild.roles[-1]:
+    print ("entra un admin")
+    if message.content.lower().startswith(DELETE_MESAGES):
+      #!delete <seconds>
+      #Takes the number from the message plus the actual message, that will be also deleted
+      messagesToDelete = int(message.content.lower().split()[-1]) + 1
+      await message.channel.purge(limit = messagesToDelete)    
 
-  #si un admin utilitza !togglecd
-  elif message.content.lower().startswith(TOGGLE_CD) and message.author.roles[-1] == message.channel.guild.roles[-1]:
-    TOGGLE_HELP_CD = not TOGGLE_HELP_CD
-    CONFIG["TOGGLE_HELP_CD"] = fromBoolToOnOff(TOGGLE_HELP_CD)
-    writeJSON(CONFIG_JSON_PATH, CONFIG)
-    await message.delete()
-    await message.channel.send(content = f'Help cd turned {CONFIG["TOGGLE_HELP_CD"]}!', delete_after = 10)
+    # !setCD X
+    elif message.content.lower().startswith(SET_CD):
+      cdToSet = message.content.lower().split()[-1]
+      HELP_CD = timedelta(minutes = int(cdToSet))
+      CONFIG["HELP_CD"] = cdToSet
+      writeJSON(CONFIG_JSON_PATH, CONFIG)
 
+    #si un admin utilitza !togglecd
+    elif message.content.lower().startswith(TOGGLE_CD):
+      TOGGLE_HELP_CD = not TOGGLE_HELP_CD
+      CONFIG["TOGGLE_HELP_CD"] = fromBoolToOnOff(TOGGLE_HELP_CD)
+      writeJSON(CONFIG_JSON_PATH, CONFIG)
+      await message.delete()
+      await message.channel.send(content = f'Help cd turned {CONFIG["TOGGLE_HELP_CD"]}!', delete_after = 10)
+
+    elif message.content.lower().startswith(GIVE_XP) :
+      xpMessage = message.content.lower().split()
+      if len(xpMessage) == SIMPLE_GIVE_XP:
+        for id in DADES_ESTUDIANTS:
+          if id in xpMessage[1]:
+            DADES_ESTUDIANTS[id]["workXp"] = DADES_ESTUDIANTS[id]["workXp"] + 10
+            writeJSON(STUDENTS_JSON_PATH, DADES_ESTUDIANTS)
+      elif len(xpMessage) == COMPLEX_GIVE_XP:
+        xpMessage = message.content.lower().split()
+        for id in DADES_ESTUDIANTS:
+          if id in xpMessage[1]:
+            DADES_ESTUDIANTS[id]["workXp"] = DADES_ESTUDIANTS[id]["workXp"] + int(xpMessage[2])
+            writeJSON(STUDENTS_JSON_PATH, DADES_ESTUDIANTS)
+      else:
+        await message.delete()
+        await message.channel.send(content = f'Wrong command, use !giveXP <name> or !giveXP <name> <amount>', delete_after = 10)
+
+    else :
+      return
 
   #si s'utilitza "ajuda <assignatura>"
   elif int(message.channel.id) == DEMANAR_AJUDA and message.content.lower().startswith("ajuda"):
