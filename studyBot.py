@@ -1,7 +1,9 @@
 import discord
 import datetime as dt
 import json
+import random
 from datetime import timedelta
+
 
 
 client = discord.Client()
@@ -99,11 +101,11 @@ def fromOnOffToBool (stringValue):
 
 def obtainRandomPerson (grup):
   allStudents = readJSON(PRESENTIAL_STUDENTS_JSON_PATH)
-  classStudents = allStudents[grup]
-  randomStudent = random.sample(classStudents.keys(),1)
+  classStudents = list(allStudents[grup].keys())
+  randomStudent = random.choice(classStudents)
   if randomStudent != "":
     return randomStudent
-  else
+  else:
     return "???"
 
   
@@ -227,13 +229,14 @@ async def on_message(message):
       await message.channel.send(content = f'You need to wait {timeLeftMinutesSeconds[0]} minutes and {timeLeftMinutesSeconds[1]} seconds to ask for help again {message.author.mention}!', delete_after = 10)
 
 
-  elif int(message.channel.id) == COMANDES_CLASSE_PRESENCIAL_ID 
+  elif int(message.channel.id) == COMANDES_CLASSE_PRESENCIAL_ID: 
     if message.content.lower().startswith("randomize"):
       command = message.content.lower().split()
       randomPerson = obtainRandomPerson(command[-1])
-      if randomPerson != "???"
+      await message.delete()
+      if randomPerson != "???" :
         await message.channel.send(content = randomPerson, delete_after = 10)
-      else
+      else :
         await message.channel.send(content = 'Error, try again and try to type as <Randomize group>', delete_after = 10)
 
 
