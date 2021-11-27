@@ -13,9 +13,13 @@ CONFIG = {}
 STUDENTS_JSON_PATH = "students.json"
 CONFIG_JSON_PATH = "config.json"
 SECRET_CONFIG = "secret.json"
+PRESENTIAL_STUDENTS_JSON_PATH = "presential_class_students.json"
 
 DEMANAR_AJUDA = 888148895002132540
 TEACHER_LOUNGE_ID = 888487793515434034
+COMANDES_CLASSE_PRESENCIAL_ID = 912989236431581245
+
+
 
 DELETE_MESAGES = "!delete"
 SET_CD = "!setcd"
@@ -92,6 +96,15 @@ def fromOnOffToBool (stringValue):
     return "off"
   else:
     return "on"
+
+def obtainRandomPerson (grup):
+  allStudents = readJSON(PRESENTIAL_STUDENTS_JSON_PATH)
+  classStudents = allStudents[grup]
+  randomStudent = random.sample(classStudents.keys(),1)
+  if randomStudent != "":
+    return randomStudent
+  else
+    return "???"
 
   
 
@@ -214,7 +227,16 @@ async def on_message(message):
       await message.channel.send(content = f'You need to wait {timeLeftMinutesSeconds[0]} minutes and {timeLeftMinutesSeconds[1]} seconds to ask for help again {message.author.mention}!', delete_after = 10)
 
 
-      
+  elif int(message.channel.id) == COMANDES_CLASSE_PRESENCIAL_ID 
+    if message.content.lower().startswith("randomize"):
+      command = message.content.lower().split()
+      randomPerson = obtainRandomPerson(command[-1])
+      if randomPerson != "???"
+        await message.channel.send(content = randomPerson, delete_after = 10)
+      else
+        await message.channel.send(content = 'Error, try again and try to type as <Randomize group>', delete_after = 10)
+
+
   else:
     if  int(message.channel.id) == DEMANAR_AJUDA:
       await message.delete()
