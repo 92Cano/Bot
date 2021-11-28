@@ -32,6 +32,7 @@ COMPLEX_GIVE_XP = 3
 HELP_CD = timedelta
 TOGGLE_HELP_CD = bool
 ADMIN = "Admin"
+QUESTIONS = "Preguntes"
 
 AJUDA_MATES = ['ajuda mates','ajuda matematiques','ajuda matemàtiques', 'ajuda mat', 'ayuda mates', 'ayuda matematicas', 'ayuda matemáticas', 'ayuda mat']
 AJUDA_NATUS = ['ajuda natus','ajuda naturals', 'ajuda nat', 'ayuda natus', 'ayuda naturales', 'ayuda nat']
@@ -103,6 +104,7 @@ def obtainRandomPerson (grup):
   allStudents = readJSON(PRESENTIAL_STUDENTS_JSON_PATH)
   classStudents = list(allStudents[grup].keys())
   randomStudent = random.choice(classStudents)
+  allStudents[randomStudent][QUESTIONS] +=1
   if randomStudent != "":
     return randomStudent
   else:
