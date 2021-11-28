@@ -104,8 +104,10 @@ def obtainRandomPerson (grup):
   allStudents = readJSON(PRESENTIAL_STUDENTS_JSON_PATH)
   classStudents = list(allStudents[grup].keys())
   randomStudent = random.choice(classStudents)
-  allStudents[randomStudent][QUESTIONS] +=1
+  
   if randomStudent != "":
+    allStudents[grup][randomStudent][QUESTIONS] +=1
+    writeJSON(PRESENTIAL_STUDENTS_JSON_PATH, allStudents)
     return randomStudent
   else:
     return "???"
